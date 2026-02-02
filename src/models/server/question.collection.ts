@@ -49,22 +49,49 @@ export default async function createQuestionCollection() {
   ]);
   console.log("question attribute created !");
 
-  await Promise.all([
-    databases.createIndex(
-      db,
-      questionCollection,
-      "title",
-      IndexType.Fulltext,
-      ["title"],
-      ["asc"],
-    ),
-    databases.createIndex(
-      db,
-      questionCollection,
-      "content",
-      IndexType.Fulltext,
-      ["content"],
-      ["asc"],
-    ),
-  ]);
+  // Create indexes with retries because Appwrite attributes can take a short
+  // while to become available after creation. Retry on attribute-not-ready errors.
+  // const createIndexesWithRetry = async (retries = 10, delay = 500) => {
+  //   for (let i = 0; i < retries; i++) {
+  //     try {
+  //       await Promise.all([
+  //         databases.createIndex(
+  //           db,
+  //           questionCollection,
+  //           "title",
+  //           IndexType.Fulltext,
+  //           ["title"],
+  //           ["asc"],
+  //         ),
+  //         databases.createIndex(
+  //           db,
+  //           questionCollection,
+  //           "content",
+  //           IndexType.Fulltext,
+  //           ["content"],
+  //           ["asc"],
+  //         ),
+  //       ]);
+  //       console.log("question indexes created !");
+  //       return;
+  //     } catch (err: any) {
+  //       const resp = err?.response || err?.message || String(err);
+  //       // Appwrite returns attribute_not_available with a message like
+  //       // "The requested attribute 'content' is not yet available. Please try again later."
+  //       if (resp && resp.includes("not yet available")) {
+  //         console.log(
+  //           `Attribute not available yet, retrying... (${i + 1}/${retries})`,
+  //         );
+  //         await new Promise((r) => setTimeout(r, delay));
+  //         continue;
+  //       }
+  //       throw err;
+  //     }
+  //   }
+  //   throw new Error(
+  //     "Failed to create indexes: attribute not available after retries",
+  //   );
+  // };
+
+  // await createIndexesWithRetry();
 }
